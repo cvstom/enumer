@@ -24,6 +24,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -328,9 +329,15 @@ func (g *Generator) transformValueNames(values []Value, transformMethod string) 
 		return
 	}
 
+	re := regexp.MustCompile(`(\w)(\d)`)
+
 	for i := range values {
 		values[i].name = strings.ToLower(name.Delimit(values[i].name, sep))
+
+		// We also want to add the separator to numbers, eg level1 becomes level_1.
+		values[i].name = re.ReplaceAllString(values[i].name, "${1}_${2}")
 	}
+
 }
 
 // trimValueNames removes a prefix from each name
