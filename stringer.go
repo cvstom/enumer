@@ -329,7 +329,7 @@ func (g *Generator) transformValueNames(values []Value, transformMethod string) 
 		return
 	}
 
-	re := regexp.MustCompile(`(\w)(\d)`)
+	re := regexp.MustCompile(`(\w)(\d+)`)
 
 	for i := range values {
 		values[i].name = strings.ToLower(name.Delimit(values[i].name, sep))
