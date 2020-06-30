@@ -320,16 +320,28 @@ func (pkg *Package) check(fs *token.FileSet, astFiles []*ast.File) {
 func (g *Generator) transformValueNames(values []Value, transformMethod string) {
 	var sep rune
 	switch transformMethod {
-	case "snake":
+	case "snake", "Snake", "SNAKE":
 		sep = '_'
-	case "kebab":
+	case "kebab", "Kebab", "KEBAB":
 		sep = '-'
+	case "blank", "Blank", "BLANK":
+		sep = ' '
 	default:
 		return
 	}
 
+	var toCase func(s string) string
+	first, last := transformMethod[0], transformMethod[len(transformMethod)-1]
+	if last == 'E' || last == 'B' || last == 'K' {
+		toCase = strings.ToUpper
+	} else if first == 'S' || first == 'K' || first == 'B' {
+		toCase = strings.Title
+	} else {
+		toCase = strings.ToLower
+	}
+
 	for i := range values {
-		values[i].name = strings.ToLower(name.Delimit(values[i].name, sep))
+		values[i].name = toCase(name.Delimit(values[i].name, sep))
 	}
 }
 
