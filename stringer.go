@@ -28,9 +28,8 @@ import (
 	"sort"
 	"strings"
 
-	"golang.org/x/tools/go/packages"
-
 	"github.com/pascaldekloe/name"
+	"golang.org/x/tools/go/packages"
 )
 
 type arrayFlags []string
@@ -56,9 +55,7 @@ var (
 	lineComment     = flag.Bool("linecomment", false, "use line comment text as printed text when present")
 )
 
-var (
-	comments, trimprefix arrayFlags
-)
+var comments, trimprefix arrayFlags
 
 func init() {
 	flag.Var(&trimprefix, "trimprefix", "transform each item name by removing a prefix. Default: \"\"")
@@ -321,23 +318,34 @@ func (pkg *Package) check(fs *token.FileSet, astFiles []*ast.File) {
 func (g *Generator) transformValueNames(values []Value, transformMethod string) {
 	var sep rune
 	switch transformMethod {
-	case "snake":
+	case "snake", "Snake", "SNAKE":
 		sep = '_'
-	case "kebab":
+	case "kebab", "Kebab", "KEBAB":
 		sep = '-'
+	case "blank", "Blank", "BLANK":
+		sep = ' '
 	default:
 		return
+	}
+
+	var toCase func(s string) string
+	first, last := transformMethod[0], transformMethod[len(transformMethod)-1]
+	if last == 'E' || last == 'B' || last == 'K' {
+		toCase = strings.ToUpper
+	} else if first == 'S' || first == 'K' || first == 'B' {
+		toCase = strings.Title
+	} else {
+		toCase = strings.ToLower
 	}
 
 	re := regexp.MustCompile(`(\w)(\d+)`)
 
 	for i := range values {
-		values[i].name = strings.ToLower(name.Delimit(values[i].name, sep))
+		values[i].name = toCase(name.Delimit(values[i].name, sep))
 
 		// We also want to add the separator to numbers, eg level1 becomes level_1.
 		values[i].name = re.ReplaceAllString(values[i].name, "${1}_${2}")
 	}
-
 }
 
 // trimValueNames removes a prefix from each name

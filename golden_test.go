@@ -36,6 +36,7 @@ var golden = []Golden{
 var goldenJSON = []Golden{
 	{"prime with JSON", primeJsonIn, primeJsonOut},
 }
+
 var goldenText = []Golden{
 	{"prime with Text", primeTextIn, primeTextOut},
 }
@@ -482,6 +483,7 @@ func (i Prime) IsAPrime() bool {
 	return ok
 }
 `
+
 const primeJsonIn = `type Prime int
 const (
 	p2 Prime = 2
@@ -891,6 +893,7 @@ func (i *Prime) Scan(value interface{}) error {
 	return nil
 }
 `
+
 const primeGqlIn = `type Prime int
 const (
 	p2 Prime = 2
@@ -995,7 +998,7 @@ func (i *Prime) UnmarshalGQL(v interface{}) error {
 }
 
 func (i Prime) MarshalGQL(w io.Writer) {
-	_, _ = w.Write([]byte(strconv.Quote(f.String())))
+	_, _ = w.Write([]byte(strconv.Quote(i.String())))
 }
 `
 
