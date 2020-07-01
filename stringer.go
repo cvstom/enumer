@@ -24,12 +24,12 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 
-	"golang.org/x/tools/go/packages"
-
 	"github.com/pascaldekloe/name"
+	"golang.org/x/tools/go/packages"
 )
 
 type arrayFlags []string
@@ -55,9 +55,7 @@ var (
 	lineComment     = flag.Bool("linecomment", false, "use line comment text as printed text when present")
 )
 
-var (
-	comments, trimprefix arrayFlags
-)
+var comments, trimprefix arrayFlags
 
 func init() {
 	flag.Var(&trimprefix, "trimprefix", "transform each item name by removing a prefix. Default: \"\"")
@@ -340,8 +338,13 @@ func (g *Generator) transformValueNames(values []Value, transformMethod string) 
 		toCase = strings.ToLower
 	}
 
+	re := regexp.MustCompile(`(\w)(\d+)`)
+
 	for i := range values {
 		values[i].name = toCase(name.Delimit(values[i].name, sep))
+
+		// We also want to add the separator to numbers, eg level1 becomes level_1.
+		values[i].name = re.ReplaceAllString(values[i].name, "${1}_${2}")
 	}
 }
 
